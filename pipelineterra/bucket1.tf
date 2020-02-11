@@ -41,3 +41,38 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
     events = ["s3:ObjectCreated:*"]
   }
 }
+
+resource "aws_sqs_queue" "queue" {
+  name = "updates_queue"
+  delay_seconds = 0 
+  message_retention_seconds = 1209600
+  receive_wait_time_seconds = 10
+  visibility_timeout_seconds = 300
+
+  policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "sqs:SendMessage",
+      "Resource": "arn:aws:sqs:*:*:updates_queue",
+      "Condition": {
+        "ArnEquals": { 
+          "aws:SourceArn": "${aws_sns_topic.user_updates.arn}"
+        }
+      }
+    }
+  ]
+}
+POLICY
+}
+
+resource "aws_sns_topic_subscription" "sqs" {
+  topic_arn = "${aws_sns_topic.user_updates.arn}"
+  protocol  = "sqs"
+  endpoint  = "${aws_sqs_queue.queue.arn}"
+  filter_policy = ""
+  raw_message_delivery = "true"
+}
