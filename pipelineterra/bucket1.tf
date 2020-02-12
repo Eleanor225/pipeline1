@@ -16,7 +16,9 @@ resource "aws_sns_topic" "user_updates" {
         "Action": "SNS:Publish",
         "Resource": "arn:aws:sns:*:*:user-updates-topic",
         "Condition":{
-            "ArnLike":{"aws:SourceArn":"${aws_s3_bucket.a.arn}"}
+            "ArnLike":{
+              "aws:SourceArn":"${aws_s3_bucket.a.arn}"
+            }
         }
     }]
 }
@@ -34,10 +36,10 @@ resource "aws_s3_bucket" "a" {
 }
 
 resource "aws_s3_bucket_notification" "bucket_notification" {
-  bucket = "${aws_s3_bucket.a.id}"
+  bucket = aws_s3_bucket.a.id
 
   topic {
-    topic_arn = "${aws_sns_topic.user_updates.arn}"
+    topic_arn = aws_sns_topic.user_updates.arn
     events = ["s3:ObjectCreated:*"]
   }
 }
@@ -70,9 +72,9 @@ POLICY
 }
 
 resource "aws_sns_topic_subscription" "sqs" {
-  topic_arn = "${aws_sns_topic.user_updates.arn}"
+  topic_arn = aws_sns_topic.user_updates.arn
   protocol  = "sqs"
-  endpoint  = "${aws_sqs_queue.queue.arn}"
+  endpoint  = aws_sqs_queue.queue.arn
   filter_policy = ""
   raw_message_delivery = "true"
 }
