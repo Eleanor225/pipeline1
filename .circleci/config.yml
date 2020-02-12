@@ -22,7 +22,7 @@
        - run:
            name: apply terraform files
            command: |
-              cd terraform
+              cd pipelineterra
               terraform init
               terraform plan -input=false -out=terraplan
               terraform apply -input=false terraplan
