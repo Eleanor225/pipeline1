@@ -14,19 +14,17 @@
      - image: *terra_image
    working_directory: *work_dir
 
+ set_environment:
+   run:
+     name: get credentials
+     command: |
+       cd && touch $BASH_ENV
+       echo 'export aws_access_key_id=$aws_access_key_id' >> $BASH_ENV
+       echo 'export aws_secret_access_key=$aws_secret_access_key' >> $BASH_ENV
+       echo 'region = "eu-west-2"' >> $BASH_ENV
+       echo 'output = "json"' >> $BASH_ENV
  jobs:
-   build1:
-     docker:
-       - image: circleci/ruby:2.4.1
-     steps:
-       - checkout
-       - run:
-           name: get credentials
-           command: |
-              echo 'export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID' >> $BASH_ENV
-              echo 'export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY' >> $BASH_ENV
-
-   build2:
+   build:
      <<: *default_config
      steps:
        - checkout
@@ -35,15 +33,14 @@
            command: |
               cd pipelineterra
               terraform init
-              terraform 0.12upgrade
               terraform plan -input=false -out=terraplan
               terraform apply -input=false terraplan
-
- workflows:
-   version: 2.1
-   tf_build:
-     jobs:
-       - build1
-       - build2:
-           requires:
-             - build1
+#
+# workflows:
+#   version: 2.1
+#   tf_build:
+#     jobs:
+#       - build1
+#       - build2:
+#           requires:
+#             - build1
