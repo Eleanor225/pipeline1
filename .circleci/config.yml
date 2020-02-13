@@ -13,34 +13,47 @@
    docker:
      - image: *terra_image
    working_directory: *work_dir
+   environment:
+     BASH_ENV: /root/.bashrc
 
- set_environment:
+ set_env_dev: &set_env_dev
    run:
      name: get credentials
      command: |
-       cd && touch $BASH_ENV
-       echo 'export aws_access_key_id=$aws_access_key_id' >> $BASH_ENV
-       echo 'export aws_secret_access_key=$aws_secret_access_key' >> $BASH_ENV
-       echo 'region = "eu-west-2"' >> $BASH_ENV
-       echo 'output = "json"' >> $BASH_ENV
+       echo 'export AWS_ACCESS_KEY_ID=$aws_access_key_id' >> $BASH_ENV
+       echo 'export AWS_SECRET_ACCESS_KEY=$aws_secret_access_key' >> $BASH_ENV
+
+ terraform_init: &terraform_init
+   run:
+     name: terraform init
+     command: |
+       mkdir -p ~/.ssh && echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
+       source $BASH_ENV
+       cd pipelineterra
+       terraform init
+
+ terraform_plan: &terraform_plan
+   run:
+     name: terraform plan
+     command:
+       source $BASH_ENV
+       cd pipelineterra
+       terraform plan -input=false -out=terraplan
+
+ terraform_apply: &terraform_apply
+   run:
+     name: terraform apply
+     command: |
+       source $BASH_ENV
+       cd pipelineterra
+       terraform apply terraplan
+
  jobs:
    build:
      <<: *default_config
      steps:
        - checkout
-       - run:
-           name: apply terraform files
-           command: |
-              cd pipelineterra
-              terraform init
-              terraform plan -input=false -out=terraplan
-              terraform apply -input=false terraplan
-#
-# workflows:
-#   version: 2.1
-#   tf_build:
-#     jobs:
-#       - build1
-#       - build2:
-#           requires:
-#             - build1
+       - *set_env_dev
+       - *terraform_init
+       - *terraform_plan
+       - *terraform_apply
