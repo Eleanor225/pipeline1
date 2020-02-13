@@ -4,7 +4,7 @@
    aws-s3: circleci/aws-s3@1.0.15
 
  terra_image: &terra_image
-   hashicorp/terraform:0.12.14
+   hashicorp/terraform:0.12.20
 
  work_dir: &work_dir
    /tmp/workspace
@@ -36,7 +36,7 @@
  terraform_plan: &terraform_plan
    run:
      name: terraform plan
-     command:
+     command: |
        source $BASH_ENV
        cd pipelineterra
        terraform plan -input=false -out=terraplan
