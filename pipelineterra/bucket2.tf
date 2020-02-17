@@ -25,26 +25,112 @@ terraform {
     region = "eu-west-2"
   }
 }
+# Create snowflake user
+resource "aws_iam_user" "snowflake_user" {
+  name = "snowflake_user"
+}
 
+# Create role for snowflake access
+resource "aws_iam_role" "iam_for_snowflake" {
+  name = "iam_for_snowflake"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": "*",
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+EOF
+}
+# Create snowflake access policy
+resource "aws_iam_policy" "sf_policy" {
+  name = "snowflake_policy"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+          "s3:PutObject",
+          "s3:GetObject",
+          "s3:GetObjectVersion",
+          "s3:DeleteObject",
+          "s3:DeleteObjectVersion"
+      ],
+      "Resource": "arn:aws:s3:::pipelinecur/*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": "s3:ListBucket",
+      "Resource": "arn:aws:s3:::pipelinecur"
+    }
+  ]
+}
+EOF
+}
+# Attach policy to role
+resource "aws_iam_role_policy_attachment" "attach_sf" {
+  role = aws_iam_role.iam_for_snowflake.name
+  policy_arn = aws_iam_policy.sf_policy.arn
+}
+# Attach policy to user
+resource "aws_iam_user_policy_attachment" "attach_user_sf" {
+  user = aws_iam_user.snowflake_user.name
+  policy_arn = aws_iam_policy.sf_policy.arn
+}
+
+# Create sns topic
 resource "aws_sns_topic" "cur_updates" {
   name = "cur-updates-topic"
 
   policy = <<POLICY
 {
-    "Version":"2012-10-17",
-    "Statement":[{
-        "Effect": "Allow",
-        "Principal": {
-            "Service": "s3.amazonaws.com"
-            },
-        "Action": "SNS:Publish",
-        "Resource": "arn:aws:sns:*:*:cur-updates-topic",
-        "Condition":{
-            "ArnLike":{
-              "aws:SourceArn":"${aws_s3_bucket.b.arn}"
-            }
+  "Version":"2012-10-17",
+  "Statement":[
+    {
+      "Effect": "Allow",
+      "Principal": {
+          "Service": "s3.amazonaws.com"
+          },
+      "Action": "SNS:Publish",
+      "Resource": "arn:aws:sns:*:*:cur-updates-topic",
+      "Condition": {
+        "StringEquals": {
+          "AWS:SourceOwner": "${aws_iam_user.snowflake_user.id}"
         }
-    }]
+      }
+    },
+    {
+      "Sid": "1",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:iam::282654190546:user/51ml-s-iess4386"
+      },
+      "Action": "sns:Subscribe",
+      "Resource": "${aws_sns_topic.cur_updates.arn}"
+    },
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "s3.amazonaws.com"
+      },
+      "Action": "SNS:Publish",
+      "Resource": "arn:aws:sns:*:*:user-updates-topic",
+      "Condition": {
+        "ArnLike": {
+          "aws:SourceArn": "arn:aws:s3:::pipelinecur"
+        }
+      }
+    }
+  ]
 }
 POLICY
 }
@@ -56,39 +142,4 @@ resource "aws_s3_bucket_notification" "cur_bucket_notification" {
     topic_arn = aws_sns_topic.cur_updates.arn
     events = ["s3:ObjectCreated:*"]
   }
-}
-
-resource "aws_sqs_queue" "cur_queue" {
-  name = "cur_queue"
-  delay_seconds = 0
-  message_retention_seconds = 1209600
-  receive_wait_time_seconds = 10
-  visibility_timeout_seconds = 300
-
-  policy = <<POLICY
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": "*",
-      "Action": "sqs:SendMessage",
-      "Resource": "arn:aws:sqs:*:*:cur_queue",
-      "Condition": {
-        "ArnEquals": {
-          "aws:SourceArn": "${aws_sns_topic.cur_updates.arn}"
-        }
-      }
-    }
-  ]
-}
-POLICY
-}
-
-resource "aws_sns_topic_subscription" "cur_sqs" {
-  topic_arn = aws_sns_topic.cur_updates.arn
-  protocol  = "sqs"
-  endpoint  = aws_sqs_queue.cur_queue.arn
-  filter_policy = ""
-  raw_message_delivery = "true"
 }
