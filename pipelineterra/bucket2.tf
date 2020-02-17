@@ -102,40 +102,31 @@ resource "aws_sns_topic" "cur_updates_sf" {
   "Version":"2012-10-17",
   "Statement":[
     {
-      "Effect": "Allow",
-      "Principal": {
-          "Service": "s3.amazonaws.com"
-          },
-      "Action": "SNS:Publish",
       "Sid": "1",
-      "Resource": "arn:aws:sns:*:*:cur-updates-topic",
-      "Condition": {
-        "StringEquals": {
-          "AWS:SourceOwner": "${aws_iam_user.snowflake_user.id}"
-        }
-      }
-    },
-    {
-      "Sid": "2",
       "Effect": "Allow",
       "Principal": {
         "AWS": "arn:aws:iam::282654190546:user/51ml-s-iess4386"
       },
-      "Action": "sns:Subscribe",
-      "Resource": "arn:aws:sns:*:*:cur-updates-topic"
+      "Action": "SNS:Subscribe",
+      "Resource": "arn:aws:sns:*:*:cur-sf-updates-topic"
     },
     {
-      "Sid": "3"
+      "Sid": "2"
       "Effect": "Allow",
       "Principal": {
         "Service": "s3.amazonaws.com"
       },
       "Action": "SNS:Publish",
-      "Resource": "arn:aws:sns:*:*:user-updates-topic",
+      "Resource": "arn:aws:sns:*:*:cur-sf-updates-topic",
       "Condition": {
-        "ArnLike": {
-          "aws:SourceArn": "arn:aws:s3:::pipelinecur"
-        }
+        "ArnLike": [
+          {
+            "AWS:SourceArn": "${aws_s3_bucket.b.arn}"
+          },
+          {
+            "AWS:SourceOwner":"${aws_iam_user.snowflake_user.arn}"
+          }
+        ]
       }
     }
   ]
