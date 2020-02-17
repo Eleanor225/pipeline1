@@ -94,7 +94,7 @@ resource "aws_iam_user_policy_attachment" "attach_user_sf" {
 }
 
 # Create sns topic
-resource "aws_sns_topic" "cur_updates" {
+resource "aws_sns_topic" "cur_updates_sf" {
   name = "cur-updates-topic"
 
   policy = <<POLICY
@@ -145,7 +145,7 @@ resource "aws_s3_bucket_notification" "cur_bucket_notification" {
   bucket = aws_s3_bucket.b.id
 
   topic {
-    topic_arn = aws_sns_topic.cur_updates.arn
+    topic_arn = aws_sns_topic.cur_updates_sf.arn
     events = ["s3:ObjectCreated:*"]
   }
 }
