@@ -95,7 +95,7 @@ resource "aws_iam_user_policy_attachment" "attach_user_sf" {
 
 # Create sns topic
 resource "aws_sns_topic" "cur_updates_sf" {
-  name = "cur-updates-topic"
+  name = "cur-sf-updates-topic"
 
   policy = <<POLICY
 {
@@ -107,6 +107,7 @@ resource "aws_sns_topic" "cur_updates_sf" {
           "Service": "s3.amazonaws.com"
           },
       "Action": "SNS:Publish",
+      "Sid": "1",
       "Resource": "arn:aws:sns:*:*:cur-updates-topic",
       "Condition": {
         "StringEquals": {
@@ -115,7 +116,7 @@ resource "aws_sns_topic" "cur_updates_sf" {
       }
     },
     {
-      "Sid": "1",
+      "Sid": "2",
       "Effect": "Allow",
       "Principal": {
         "AWS": "arn:aws:iam::282654190546:user/51ml-s-iess4386"
@@ -124,6 +125,7 @@ resource "aws_sns_topic" "cur_updates_sf" {
       "Resource": "arn:aws:sns:*:*:cur-updates-topic"
     },
     {
+      "Sid": "3"
       "Effect": "Allow",
       "Principal": {
         "Service": "s3.amazonaws.com"
