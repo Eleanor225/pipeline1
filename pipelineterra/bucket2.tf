@@ -115,7 +115,7 @@ resource "aws_sns_topic" "cur_updates" {
         "AWS": "arn:aws:iam::282654190546:user/51ml-s-iess4386"
       },
       "Action": "sns:Subscribe",
-      "Resource": "${aws_sns_topic.cur_updates.arn}"
+      "Resource": "arn:aws:sns:*:*:cur-updates-topic"
     },
     {
       "Effect": "Allow",
