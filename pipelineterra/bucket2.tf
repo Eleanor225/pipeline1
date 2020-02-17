@@ -40,9 +40,15 @@ resource "aws_iam_role" "iam_for_snowflake" {
   "Statement": [
     {
       "Action": "sts:AssumeRole",
-      "Principal": "*",
+      "Principal": {
+        "AWS": "arn:aws:iam::282654190546:user/51ml-s-iess4386"
+      },
       "Effect": "Allow",
-      "Sid": ""
+      "Condition": {
+        "StringEquals": {
+          "sts:ExternalId": "LR97355_SFCRole=2_/V0vCt2Vmzdp0mI4ZFxikzJTgSI="
+        }
+      }
     }
   ]
 }
