@@ -116,16 +116,12 @@ resource "aws_sns_topic" "cur_updates_sf" {
       },
       "Action": "SNS:Publish",
       "Resource": "arn:aws:sns:*:*:cur-sf-updates-topic",
-      "Condition": [{
+      "Condition": {
         "ArnLike": {
-            "AWS:SourceArn": "${aws_s3_bucket.b.arn}"
-        }
-      },
-      {
-        "Arnlike": {
+            "AWS:SourceArn": "${aws_s3_bucket.b.arn}",
             "AWS:SourceOwner":"${aws_iam_user.snowflake_user.arn}"
         }
-      }]
+      }
     }
   ]
 }
