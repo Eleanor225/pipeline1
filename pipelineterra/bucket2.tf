@@ -46,7 +46,7 @@ resource "aws_iam_role" "iam_for_snowflake" {
       "Effect": "Allow",
       "Condition": {
         "StringEquals": {
-          "sts:ExternalId": "LR97355_SFCRole=2_sv/W51m6plWUy7j8acVFr8ISZ4o="
+          "sts:ExternalId": "LR97355_SFCRole=2_US6h8yODq/R/opzTFp1cm3dNbjo=
         }
       }
     }
@@ -144,5 +144,4 @@ resource "aws_sns_topic_subscription" "snowflake_sub" {
   protocol  = "sqs"
   endpoint  = "arn:aws:sqs:eu-west-2:282654190546:sf-snowpipe-AIDAUDT4AVPJEAWIMKTOM-lpf9f7-BXUvI7ynR_zaqmw"
   filter_policy = ""
-  raw_message_delivery = "true"
 }
