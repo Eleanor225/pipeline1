@@ -102,7 +102,7 @@ resource "aws_sns_topic" "cur_updates_sf" {
   "Version":"2012-10-17",
   "Statement":[
     {
-      "Sid": "1"
+      "Sid": "1",
       "Effect": "Allow",
       "Principal": {
         "AWS": "arn:aws:iam::282654190546:user/51ml-s-iess4386"
@@ -111,7 +111,7 @@ resource "aws_sns_topic" "cur_updates_sf" {
       "Resource": "arn:aws:sns:*:*:cur-sf-updates-topic"
     },
     {
-      "Sid": "2"
+      "Sid": "2",
       "Effect": "Allow",
       "Principal": {
         "Service": "s3.amazonaws.com"
