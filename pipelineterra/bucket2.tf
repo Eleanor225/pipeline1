@@ -95,7 +95,7 @@ resource "aws_iam_user_policy_attachment" "attach_user_sf" {
 
 # Create sns topic
 resource "aws_sns_topic" "cur_updates_sf" {
-  name = "cur-sf-updates-topic"
+  name = "cur-updates-topic"
 
   policy = <<POLICY
 {
