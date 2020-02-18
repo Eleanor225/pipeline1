@@ -46,7 +46,7 @@ resource "aws_iam_role" "iam_for_snowflake" {
       "Effect": "Allow",
       "Condition": {
         "StringEquals": {
-          "sts:ExternalId": "LR97355_SFCRole=2_US6h8yODq/R/opzTFp1cm3dNbjo=
+          "sts:ExternalId": "LR97355_SFCRole=2_US6h8yODq/R/opzTFp1cm3dNbjo="
         }
       }
     }
