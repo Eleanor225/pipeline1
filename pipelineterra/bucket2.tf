@@ -138,3 +138,11 @@ resource "aws_s3_bucket_notification" "cur_bucket_notification" {
     events = ["s3:ObjectCreated:*"]
   }
 }
+
+resource "aws_sns_topic_subscription" "snowflake_sub" {
+  topic_arn = aws_sns_topic.cur_updates_sf.arn
+  protocol  = "sqs"
+  endpoint  = "arn:aws:sqs:eu-west-2:282654190546:sf-snowpipe-AIDAUDT4AVPJEAWIMKTOM-lpf9f7-BXUvI7ynR_zaqmw"
+  filter_policy = ""
+  raw_message_delivery = "true"
+}
