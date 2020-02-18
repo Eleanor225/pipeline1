@@ -138,7 +138,7 @@ resource "aws_s3_bucket_notification" "cur_bucket_notification" {
     events = ["s3:ObjectCreated:*"]
   }
 }
-
+# Set up subsrciption from snowpipe
 resource "aws_sns_topic_subscription" "snowflake_sub" {
   topic_arn = aws_sns_topic.cur_updates_sf.arn
   protocol  = "sqs"
