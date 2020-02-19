@@ -33,17 +33,27 @@ resource "aws_sns_topic" "curated_updates" {
 {
     "Version":"2012-10-17",
     "Statement":[{
-        "Effect": "Allow",
-        "Principal": {
-            "Service": "s3.amazonaws.com"
-            },
-        "Action": "SNS:Publish",
-        "Resource": "arn:aws:sns:*:*:curated-updates-topic",
-        "Condition":{
-            "ArnLike":{
-              "aws:SourceArn":"${aws_s3_bucket.b.arn}"
-            }
+      "Sid":"s3-event-notifier",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "s3.amazonaws.com"
+        },
+      "Action": "SNS:Publish",
+      "Resource": "arn:aws:sns:eu-west-2:460346970906:curated-updates-topic",
+      "Condition":{
+        "ArnLike":{
+          "aws:SourceArn":"${aws_s3_bucket.b.arn}"
         }
+      }
+    },
+    {
+      "Sid":"1",
+      "Effect":"Allow",
+      "Principal":{
+        "AWS":"arn:aws:iam::282654190546:user/51ml-s-iess4386"
+      },
+      "Action":["sns:Subscribe"],
+      "Resource":["arn:aws:sns:eu-west-2:460346970906:curated-updates-topic"]
     }]
 }
 POLICY
