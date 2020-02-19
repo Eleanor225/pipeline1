@@ -49,7 +49,7 @@ resource "aws_sns_topic" "curated_updates" {
 POLICY
 }
 
-resource "aws_s3_bucket_notification" "bucket_notification" {
+resource "aws_s3_bucket_notification" "curbucket_notification" {
   bucket = aws_s3_bucket.b.id
 
   topic {
